@@ -172,7 +172,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                     ],
                   ),
                   onTap: () {
-                    context.go('/edit-password', extra: entry);
+                    context.push('/edit-password', extra: entry);
                   },
                 );
               },
@@ -184,7 +184,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.go('/add-password');
+          context.push('/add-password');
         },
         child: const Icon(Icons.add),
       ),

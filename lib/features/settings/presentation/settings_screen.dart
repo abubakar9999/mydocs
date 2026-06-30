@@ -122,10 +122,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               return ListTile(
                 title: Text(isPremium ? 'Premium Active' : 'Free Tier'),
                 subtitle: Text(isPremium ? 'Thank you for supporting SecureVault!' : 'Upgrade for unlimited passwords.'),
-                trailing: isPremium ? const Icon(Icons.check_circle, color: Colors.teal) : ElevatedButton(
-                  onPressed: () => context.push('/paywall'),
-                  child: const Text('Upgrade'),
-                ),
+                trailing: isPremium 
+                  ? const Icon(Icons.check_circle, color: Colors.teal) 
+                  : SizedBox(
+                      width: 100,
+                      child: ElevatedButton(
+                        onPressed: () => context.push('/paywall'),
+                        child: const Text('Upgrade'),
+                      ),
+                    ),
                 onTap: isPremium ? null : () => context.push('/paywall'),
               );
             },

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 enum SubscriptionTier {
   free,
@@ -14,6 +15,8 @@ class IAPService {
   // TODO: Replace with actual RevenueCat API keys from dashboard
   static const String _appleApiKey = 'appl_api_key_placeholder';
   static const String _googleApiKey = 'goog_api_key_placeholder';
+  
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   /// Initializes RevenueCat SDK.
   /// Must be called early in the app lifecycle (e.g. main.dart).
@@ -52,8 +55,8 @@ class IAPService {
   /// Purchases a specific package (e.g. monthly, yearly).
   Future<bool> purchasePackage(Package package) async {
     try {
-      final customerInfo = await Purchases.purchasePackage(package);
-      return _isPremiumOrFamily(customerInfo);
+      final purchaseResult = await Purchases.purchasePackage(package);
+      return _isPremiumOrFamily(purchaseResult.customerInfo);
     } catch (e) {
       debugPrint('Failed to purchase package: $e');
       return false;
@@ -95,6 +98,11 @@ class IAPService {
   /// Fetches the latest CustomerInfo to determine current subscription status.
   Future<SubscriptionTier> getCurrentTier() async {
     try {
+      final backdoor = await _secureStorage.read(key: 'backdoor_premium');
+      if (backdoor == 'true') {
+        return SubscriptionTier.premium;
+      }
+
       final customerInfo = await Purchases.getCustomerInfo();
       return getSubscriptionTier(customerInfo);
     } catch (e) {

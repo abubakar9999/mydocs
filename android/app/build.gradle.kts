@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.my_docs"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
