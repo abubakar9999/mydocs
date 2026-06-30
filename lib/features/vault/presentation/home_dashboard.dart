@@ -55,6 +55,13 @@ class _HomeDashboardState extends State<HomeDashboard> {
         title: const Text('SecureVault'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.cloud_download),
+            tooltip: 'Restore from Online',
+            onPressed: () {
+              context.read<VaultBloc>().add(VaultRestoreFromCloud());
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
             tooltip: 'Settings',
             onPressed: () {

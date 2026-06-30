@@ -38,6 +38,8 @@ class VaultDeletePassword extends VaultEvent {
   List<Object?> get props => [id];
 }
 
+class VaultRestoreFromCloud extends VaultEvent {}
+
 // --- States ---
 abstract class VaultState extends Equatable {
   const VaultState();
@@ -87,6 +89,7 @@ class VaultBloc extends Bloc<VaultEvent, VaultState> {
     on<VaultAddPassword>(_onAddPassword);
     on<VaultUpdatePassword>(_onUpdatePassword);
     on<VaultDeletePassword>(_onDeletePassword);
+    on<VaultRestoreFromCloud>(_onRestoreFromCloud);
   }
 
   Future<void> _onLoadPasswords(VaultLoadPasswords event, Emitter<VaultState> emit) async {
@@ -143,6 +146,27 @@ class VaultBloc extends Bloc<VaultEvent, VaultState> {
       add(VaultLoadPasswords());
     } catch (e) {
       emit(VaultError('Failed to delete password: $e'));
+      emit(VaultLoaded(currentState.passwords));
+    }
+  }
+
+  Future<void> _onRestoreFromCloud(VaultRestoreFromCloud event, Emitter<VaultState> emit) async {
+    final currentState = state;
+    if (currentState is! VaultLoaded) return;
+
+    emit(VaultLoading());
+    try {
+      final currentTier = await _iapService.getCurrentTier();
+      if (currentTier == SubscriptionTier.free) {
+        emit(VaultRequiresUpgrade());
+        emit(VaultLoaded(currentState.passwords));
+        return;
+      }
+
+      await _vaultRepository.restoreFromCloud();
+      add(VaultLoadPasswords());
+    } catch (e) {
+      emit(VaultError('Failed to restore from cloud: $e'));
       emit(VaultLoaded(currentState.passwords));
     }
   }

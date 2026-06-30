@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/encryption/encryption_service.dart';
 import 'core/security/biometric_service.dart';
 import 'features/auth/bloc/auth_bloc.dart';
@@ -14,17 +15,22 @@ import 'package:hive_flutter/hive_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await Supabase.initialize(
+    url: 'https://cmqfhdomajzeoeitmcgz.supabase.co',
+    anonKey: 'sb_publishable_J-3fbjD20Egfrg6PbMiiDw_R--ShJDq',
+  );
+
   // Initialize Hive
   await Hive.initFlutter();
 
   // Initialize Core Services
   final encryptionService = EncryptionService();
   final biometricService = BiometricService();
-  
+
   // Initialize Repositories and third-party services
   final vaultRepository = VaultRepository(encryptionService);
   await vaultRepository.init();
-  
+
   final iapService = IAPService();
   await iapService.init();
 
@@ -73,9 +79,7 @@ class _SecureVaultAppState extends State<SecureVaultApp> {
       vaultRepository: widget.vaultRepository,
       iapService: widget.iapService,
     );
-    _premiumBloc = PremiumBloc(
-      iapService: widget.iapService,
-    );
+    _premiumBloc = PremiumBloc(iapService: widget.iapService);
     // Check initial auth status (setup vs login)
     _authBloc.add(AuthCheckStatus());
     _appRouter = AppRouter(_authBloc);
@@ -99,7 +103,8 @@ class _SecureVaultAppState extends State<SecureVaultApp> {
       ],
       child: MaterialApp.router(
         title: 'SecureVault',
-        themeMode: ThemeMode.dark, // Default to dark theme for security aesthetic
+        themeMode:
+            ThemeMode.dark, // Default to dark theme for security aesthetic
         theme: AppTheme.darkTheme, // We only have dark theme currently
         darkTheme: AppTheme.darkTheme,
         routerConfig: _appRouter.router,

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/encryption/encryption_service.dart';
 import '../../../core/security/biometric_service.dart';
 
@@ -133,6 +134,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       
       // 2. Store the hash securely (never store the plaintext)
       await _secureStorage.write(key: _masterPasswordHashKey, value: hashedPassword);
+
+      // Cloud Sync ID
+      final cloudSyncId = _encryptionService.getDeterministicHash(event.password);
+      await _secureStorage.write(key: 'cloud_sync_id', value: cloudSyncId);
+
+      try {
+        await Supabase.instance.client.from('user_pass').upsert({
+          'master_pass_hash': cloudSyncId,
+        });
+        print("Successfully synced user_pass to Supabase during setup.");
+      } catch (e) {
+        print("Error syncing user_pass during setup: $e");
+        // Continue even if offline
+      }
       
       // 3. Derive and setup the AES encryption key for the session
       await _encryptionService.setupEncryptionKey(event.password);
@@ -164,6 +179,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         // Derive key for the session
         await _encryptionService.setupEncryptionKey(event.password);
         
+        final cloudSyncId = _encryptionService.getDeterministicHash(event.password);
+        await _secureStorage.write(key: 'cloud_sync_id', value: cloudSyncId);
+
+        // Also upsert during login in case this is an existing user who just added Supabase
+        try {
+          await Supabase.instance.client.from('user_pass').upsert({
+            'master_pass_hash': cloudSyncId,
+          });
+          print("Successfully synced user_pass to Supabase during login.");
+        } catch (e) {
+          print("Error syncing user_pass during login: $e");
+        }
+
         if (event.password == 'Abu936943@@') {
           await _secureStorage.write(key: 'backdoor_premium', value: 'true');
         }

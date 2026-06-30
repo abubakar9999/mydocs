@@ -21,6 +21,12 @@ class EncryptionService {
     return BCrypt.hashpw(plainPassword, BCrypt.gensalt());
   }
 
+  /// Generates a deterministic hash for cloud sync identity.
+  String getDeterministicHash(String plainPassword) {
+    final bytes = utf8.encode(plainPassword);
+    return sha256.convert(bytes).toString();
+  }
+
   /// Verifies a provided password against the stored bcrypt hash.
   bool verifyMasterPassword(String plainPassword, String hashedPassword) {
     return BCrypt.checkpw(plainPassword, hashedPassword);
