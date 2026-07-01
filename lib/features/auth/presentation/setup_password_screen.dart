@@ -10,6 +10,7 @@ class SetupPasswordScreen extends StatefulWidget {
 }
 
 class _SetupPasswordScreenState extends State<SetupPasswordScreen> {
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   
@@ -19,6 +20,7 @@ class _SetupPasswordScreenState extends State<SetupPasswordScreen> {
 
   @override
   void dispose() {
+    _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -53,6 +55,13 @@ class _SetupPasswordScreenState extends State<SetupPasswordScreen> {
   }
 
   void _submit() {
+    final email = _emailController.text.trim();
+    if (email.isEmpty || !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid email address')),
+      );
+      return;
+    }
     if (_password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Password cannot be empty')),
@@ -73,7 +82,7 @@ class _SetupPasswordScreenState extends State<SetupPasswordScreen> {
     }
 
     // Trigger BLoC event
-    context.read<AuthBloc>().add(AuthSetupMasterPassword(_password));
+    context.read<AuthBloc>().add(AuthSetupMasterPassword(_emailController.text.trim(), _password));
   }
 
   @override
@@ -113,6 +122,17 @@ class _SetupPasswordScreenState extends State<SetupPasswordScreen> {
                     style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                   const SizedBox(height: 40),
+                  
+                  // Email Field
+                  TextField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      labelText: 'Email Address',
+                      prefixIcon: Icon(Icons.email),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   
                   // Password Field
                   TextField(

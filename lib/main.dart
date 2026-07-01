@@ -15,10 +15,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Supabase.initialize(
-    url: 'https://cmqfhdomajzeoeitmcgz.supabase.co',
-    anonKey: 'sb_publishable_J-3fbjD20Egfrg6PbMiiDw_R--ShJDq',
-  );
+  await Supabase.initialize(url: 'https://nbjrutundzzyfbhlucyq.supabase.co', publishableKey: 'sb_publishable_4nZyBZfuRbzFtzzVSlkedg_CBn_6pig');
 
   // Initialize Hive
   await Hive.initFlutter();
@@ -34,14 +31,7 @@ void main() async {
   final iapService = IAPService();
   await iapService.init();
 
-  runApp(
-    SecureVaultApp(
-      encryptionService: encryptionService,
-      biometricService: biometricService,
-      vaultRepository: vaultRepository,
-      iapService: iapService,
-    ),
-  );
+  runApp(SecureVaultApp(encryptionService: encryptionService, biometricService: biometricService, vaultRepository: vaultRepository, iapService: iapService));
 }
 
 class SecureVaultApp extends StatefulWidget {
@@ -50,13 +40,7 @@ class SecureVaultApp extends StatefulWidget {
   final VaultRepository vaultRepository;
   final IAPService iapService;
 
-  const SecureVaultApp({
-    super.key,
-    required this.encryptionService,
-    required this.biometricService,
-    required this.vaultRepository,
-    required this.iapService,
-  });
+  const SecureVaultApp({super.key, required this.encryptionService, required this.biometricService, required this.vaultRepository, required this.iapService});
 
   @override
   State<SecureVaultApp> createState() => _SecureVaultAppState();
@@ -71,14 +55,8 @@ class _SecureVaultAppState extends State<SecureVaultApp> {
   @override
   void initState() {
     super.initState();
-    _authBloc = AuthBloc(
-      encryptionService: widget.encryptionService,
-      biometricService: widget.biometricService,
-    );
-    _vaultBloc = VaultBloc(
-      vaultRepository: widget.vaultRepository,
-      iapService: widget.iapService,
-    );
+    _authBloc = AuthBloc(encryptionService: widget.encryptionService, biometricService: widget.biometricService);
+    _vaultBloc = VaultBloc(vaultRepository: widget.vaultRepository, iapService: widget.iapService);
     _premiumBloc = PremiumBloc(iapService: widget.iapService);
     // Check initial auth status (setup vs login)
     _authBloc.add(AuthCheckStatus());
@@ -103,8 +81,7 @@ class _SecureVaultAppState extends State<SecureVaultApp> {
       ],
       child: MaterialApp.router(
         title: 'SecureVault',
-        themeMode:
-            ThemeMode.dark, // Default to dark theme for security aesthetic
+        themeMode: ThemeMode.dark, // Default to dark theme for security aesthetic
         theme: AppTheme.darkTheme, // We only have dark theme currently
         darkTheme: AppTheme.darkTheme,
         routerConfig: _appRouter.router,

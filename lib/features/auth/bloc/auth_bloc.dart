@@ -22,12 +22,13 @@ class AuthCheckStatus extends AuthEvent {}
 
 /// Dispatched when the user sets up their master password for the first time.
 class AuthSetupMasterPassword extends AuthEvent {
+  final String email;
   final String password;
 
-  const AuthSetupMasterPassword(this.password);
+  const AuthSetupMasterPassword(this.email, this.password);
 
   @override
-  List<Object?> get props => [password];
+  List<Object?> get props => [email, password];
 }
 
 /// Dispatched when the user attempts to log in with their master password.
@@ -142,6 +143,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       try {
         await Supabase.instance.client.from('user_pass').upsert({
           'master_pass_hash': cloudSyncId,
+          'email': event.email,
         });
         print("Successfully synced user_pass to Supabase during setup.");
       } catch (e) {

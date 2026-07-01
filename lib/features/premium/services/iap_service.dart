@@ -28,13 +28,19 @@ class IAPService {
     PurchasesConfiguration? configuration;
     
     if (Platform.isIOS || Platform.isMacOS) {
-      configuration = PurchasesConfiguration(_appleApiKey);
+      if (!_appleApiKey.contains('placeholder')) {
+        configuration = PurchasesConfiguration(_appleApiKey);
+      }
     } else if (Platform.isAndroid) {
-      configuration = PurchasesConfiguration(_googleApiKey);
+      if (!_googleApiKey.contains('placeholder')) {
+        configuration = PurchasesConfiguration(_googleApiKey);
+      }
     }
 
     if (configuration != null) {
       await Purchases.configure(configuration);
+    } else {
+      debugPrint('Purchases API keys are missing/placeholders. Skipping RevenueCat configuration.');
     }
   }
 
