@@ -73,19 +73,22 @@ class _SecureVaultAppState extends State<SecureVaultApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<AuthBloc>.value(value: _authBloc),
-        BlocProvider<VaultBloc>.value(value: _vaultBloc),
-        BlocProvider<PremiumBloc>.value(value: _premiumBloc),
-      ],
-      child: MaterialApp.router(
-        title: 'SecureVault',
-        themeMode: ThemeMode.dark, // Default to dark theme for security aesthetic
-        theme: AppTheme.darkTheme, // We only have dark theme currently
-        darkTheme: AppTheme.darkTheme,
-        routerConfig: _appRouter.router,
-        debugShowCheckedModeBanner: false,
+    return RepositoryProvider<VaultRepository>.value(
+      value: widget.vaultRepository,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<AuthBloc>.value(value: _authBloc),
+          BlocProvider<VaultBloc>.value(value: _vaultBloc),
+          BlocProvider<PremiumBloc>.value(value: _premiumBloc),
+        ],
+        child: MaterialApp.router(
+          title: 'SecureVault',
+          themeMode: ThemeMode.dark, // Default to dark theme for security aesthetic
+          theme: AppTheme.darkTheme, // We only have dark theme currently
+          darkTheme: AppTheme.darkTheme,
+          routerConfig: _appRouter.router,
+          debugShowCheckedModeBanner: false,
+        ),
       ),
     );
   }

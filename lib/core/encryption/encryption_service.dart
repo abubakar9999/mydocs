@@ -104,4 +104,37 @@ class EncryptionService {
 
     return encrypter.decrypt(encrypted, iv: iv);
   }
+
+  /// Encrypts binary data (e.g. image bytes) using AES-256.
+  /// Returns a base64 string combining IV and cipher text.
+  String encryptBytes(Uint8List data) {
+    if (_sessionKey == null) {
+      throw Exception('Encryption key not loaded. Vault is locked.');
+    }
+
+    final iv = IV.fromSecureRandom(16);
+    final encrypter = Encrypter(AES(_sessionKey!, mode: AESMode.cbc));
+
+    final encrypted = encrypter.encryptBytes(data, iv: iv);
+    
+    return '${iv.base64}:${encrypted.base64}';
+  }
+
+  /// Decrypts encrypted binary data string back to Uint8List.
+  Uint8List decryptBytes(String encryptedData) {
+    if (_sessionKey == null) {
+      throw Exception('Encryption key not loaded. Vault is locked.');
+    }
+
+    final parts = encryptedData.split(':');
+    if (parts.length != 2) {
+      throw Exception('Invalid encrypted data format.');
+    }
+
+    final iv = IV.fromBase64(parts[0]);
+    final encrypted = Encrypted.fromBase64(parts[1]);
+    final encrypter = Encrypter(AES(_sessionKey!, mode: AESMode.cbc));
+
+    return Uint8List.fromList(encrypter.decryptBytes(encrypted, iv: iv));
+  }
 }

@@ -10,6 +10,9 @@ import '../../features/vault/presentation/add_edit_password_screen.dart';
 import '../../features/vault/data/vault_repository.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/premium/presentation/paywall_screen.dart';
+import '../../features/vault/presentation/add_document_screen.dart';
+import '../../features/vault/presentation/document_viewer_screen.dart';
+import '../../features/vault/data/document_entry.dart';
 
 /// Helper to convert a Stream into a Listenable for GoRouter's refreshListenable
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -106,6 +109,17 @@ class AppRouter {
       GoRoute(
         path: '/paywall',
         builder: (context, state) => const PaywallScreen(),
+      ),
+      GoRoute(
+        path: '/add-document',
+        builder: (context, state) => const AddDocumentScreen(),
+      ),
+      GoRoute(
+        path: '/view-document',
+        builder: (context, state) {
+          final entry = state.extra as DocumentEntry;
+          return DocumentViewerScreen(entry: entry);
+        },
       ),
     ],
   );
